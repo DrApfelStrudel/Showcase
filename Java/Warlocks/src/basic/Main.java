@@ -12,7 +12,6 @@ public class Main {
 	
 	private void initGL() {
         try {
-        	DisplayMode[] modes = Display.getAvailableDisplayModes();
         	DisplayMode m = new DisplayMode(800, 600);
         	width = m.getWidth();
         	height = m.getHeight();

@@ -1,0 +1,408 @@
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glEnable;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.openal.AL;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.openal.Audio;
+import org.newdawn.slick.openal.AudioLoader;
+import org.newdawn.slick.openal.SoundStore;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
+
+
+public class GameBoard {
+
+	public static Player p;
+	public static CopyOnWriteArrayList<Entity> entities;
+	public static CopyOnWriteArrayList<Particle> particles;
+	public MovingCube mc;
+	public MovingCube mc2;
+	float i = 0.2f;
+	Audio music = null;
+	
+	public void wayPoints() {
+		Tile a = new Tile(10,0,25);
+		Tile b = new Tile(-10,0,25);
+		
+		Tile c = new Tile(10,0,-25);
+		Tile d = new Tile(-10,0,-25);
+		
+		Tile e = new Tile(25,0,10);
+		Tile f = new Tile(-25,0,10);
+		
+		Tile g = new Tile(25,0,-10);
+		Tile h = new Tile(-25,0,-10);
+		
+		Tile i = new Tile(10,0,10);
+		
+		Tile j = new Tile(-10,0,10);
+		
+		Tile k = new Tile(10,0,-10);
+		
+		Tile l = new Tile(-10,0,-10);	
+		
+		Tile aa = new Tile(-25,0,-25);
+		Tile bb = new Tile(25,0,-25);
+		Tile cc = new Tile(25,0,25);
+		Tile dd = new Tile(-25,0,25);
+		Tile m = new Tile(0, 0, 38);
+		Tile n = new Tile(0,0,52);
+		Tile o = new Tile(0,0,68);
+		Tile de = new Tile(0,0,25);
+
+		de.addNeighbour(m);
+		de.addNeighbour(b);
+		de.addNeighbour(a);
+		m.addNeighbour(n);
+		n.addNeighbour(o);
+		n.jumpTile = true;
+		o.jumpTile = true;
+		m.jumpTile = true;
+
+		c.addNeighbour(d);	
+		e.addNeighbour(g);
+		f.addNeighbour(h);
+		
+
+		i.addNeighbour(a);
+		
+
+		j.addNeighbour(b);
+		
+
+		k.addNeighbour(c);
+		
+
+		l.addNeighbour(d);
+		
+		a.addNeighbour(cc);
+		cc.addNeighbour(e);
+		b.addNeighbour(dd);
+		dd.addNeighbour(f);
+		c.addNeighbour(bb);
+		bb.addNeighbour(g);
+		d.addNeighbour(aa);
+		aa.addNeighbour(h);
+
+		Data.waypoints.add(a);
+		Data.waypoints.add(b);
+		Data.waypoints.add(c);
+		Data.waypoints.add(d);
+		Data.waypoints.add(e);
+		Data.waypoints.add(f);
+		Data.waypoints.add(g);
+		Data.waypoints.add(h);
+		Data.waypoints.add(i);
+		Data.waypoints.add(j);
+		Data.waypoints.add(k);
+		Data.waypoints.add(l);
+		Data.waypoints.add(aa);
+		Data.waypoints.add(bb);
+		Data.waypoints.add(cc);
+		Data.waypoints.add(dd);
+		Data.waypoints.add(m);
+		Data.waypoints.add(de);
+		Data.waypoints.add(n);
+		Data.waypoints.add(o);
+
+		for (int p = 84; p < 200; p += 16) {
+			Tile lo = new Tile(0,0,p);
+			lo.jumpTile = true;
+			lo.addNeighbour(Data.waypoints.get(Data.waypoints.size()-1));
+			Data.waypoints.add(lo);
+		}
+	}
+	
+	public void init() {
+		try {
+			Data.audio[15] = AudioLoader.getAudio("OGG", ResourceLoader.getResourceAsStream("Sounds/Intro.ogg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Data.audio[15].playAsMusic(1, 1, false);
+		
+		Mouse.setGrabbed(true);
+		Data.init();
+		Util.loadLevel("Dild.lvl");
+		wayPoints();
+		
+		for (int i = 13; i < 100; i += 4) {
+
+		Cube3D floor2 = new Cube3D(0,-2,i,2f,4f,2f, new Point(0.4f,0.4f,1), TexLoad.tex[1]);
+		floor2.update();
+		Data.cubes.add(floor2);
+		}
+		
+		mc = new MovingCube(-14,-1f,0,1f,2f,1f, new Point(0.4f,0.4f,1), TexLoad.tex[1], new Point(-20,2,0), new Point(-11,2,0));
+		mc.update();
+		Data.cubes.add(mc);
+		
+		mc2 = new MovingCube(-21,-1f,0,1f,2f,1f, new Point(0.4f,0.4f,1), TexLoad.tex[1], new Point(-20,2,0), new Point(-34,2,0));
+		mc2.update();
+		Data.cubes.add(mc2);
+		
+		for (int i = -13; i > -100; i -= 5) {
+			Cube3D floor2 = new Cube3D(0,-2,i,2f,4f,2f, new Point(0.4f,0.4f,1), TexLoad.tex[1]);
+			floor2.update();
+			Data.cubes.add(floor2);
+		}
+		
+		Cube3D wall = new Cube3D(0, 0.25f, 0, 1f, 0.5f, 10f, new Point(1f, 1f, 1), TexLoad.tex[0]);
+		Data.cubes.add(wall);
+		wall.update();
+		Cube3D wall2 = new Cube3D(0, 1f, 0, 9f, 2f, 1f, new Point(1f, 1f, 1), TexLoad.tex[0]);
+		Data.cubes.add(wall2);
+		wall2.update();
+		
+		Cube3D wall3 = new Cube3D(5, 1f, 0, 1f, 2f, 10f, new Point(1f, 1f, 1), TexLoad.tex[0]);
+		Data.cubes.add(wall3);
+		wall3.update();
+		
+		Cube3D wall4 = new Cube3D(-5, 1f, 0, 1f, 2f, 10f, new Point(1f, 1f, 1), TexLoad.tex[0]);
+		Data.cubes.add(wall4);
+		wall4.update();	
+
+		p = new Player(0,4,0);
+		entities = new CopyOnWriteArrayList<Entity>();
+		particles = new CopyOnWriteArrayList<Particle>();
+		entities.add(p);
+		
+		System.out.println("Deb");
+		
+		while (Data.audio[15].isPlaying()) {}
+
+		Data.audio[12].playAsSoundEffect(1f, 1f, false);
+	}
+	
+	public Player getPlayer() {
+		return p;
+	}
+	
+	private int updateDist = 300;
+	private boolean var1 = false;
+	
+	public void update() {
+		
+		if(!Data.audio[12].isPlaying() && !var1) {
+			Data.audio[0].playAsMusic(1, 1, true);
+			var1 = true;
+		}
+		pollInput();
+		if (Player.key.get("esc")) {
+			AL.destroy();
+			Display.destroy();
+			System.exit(0);
+		}
+		
+		if ((int)(Math.random()*100) == 0 && var1 == true) {
+			for (Tile T : Data.waypoints) {
+
+				if (!p.canSee(Util.toPos(T.getPos())) && Util.distanceFrom(Util.toPos(T.getPos()), p.getPos()) > 5) {
+					if ((int)(Math.random()*4) == 0) {
+					int type = 0;
+					if ((int)(Math.random()*3) == 0) {
+						type = (int) (Math.random()*3)+1;
+					}
+					Worm w = new Worm(T, type);
+					entities.add(w);
+					break;
+					}
+				}
+			}
+
+		}
+
+		for (Entity w : entities) {
+			if (Util.distanceFrom(w.getPos(), p.getPos()) < updateDist) {
+				w.update();
+				for (Entity wo : entities) {
+					if (w.collide(wo.bounds) && wo != w) {
+						w.collision(wo);
+					}
+				}
+			}
+		}
+		
+		for (Particle p : particles) {
+			p.Update();
+		}
+		for (Cube3D c : Data.cubes) {
+			if (Util.distanceFrom(c.getCoords(), p.getPos()) < updateDist)
+			c.update();
+		}
+
+		mc.move();
+		mc2.move();
+	}
+	
+	
+	public void pollInput() {
+		while (Keyboard.next()) {
+			if (Keyboard.getEventKeyState()) {
+				if (Keyboard.getEventKey() == Keyboard.KEY_D) {
+					Player.key.put("d", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_S) {
+					Player.key.put("s", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_A) {
+					Player.key.put("a", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_W) {
+					Player.key.put("w", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_K) {
+					Player.key.put("k", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_SPACE) {
+					Player.key.put("space", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_LSHIFT) {
+					Player.key.put("lshift", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+					Player.key.put("esc", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_R) {
+					entities = new CopyOnWriteArrayList<Entity>();
+					p = new Player(0,5,0);
+					entities.add(p);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_1) {
+					Player.key.put("1", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_2) {
+					Player.key.put("2", true);
+				}
+			}
+			else {
+				if (Keyboard.getEventKey() == Keyboard.KEY_D) {
+					Player.key.put("d", false);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_S) {
+					Player.key.put("s", false);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_A) {
+					Player.key.put("a", false);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_W) {
+					Player.key.put("w", false);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_K) {
+					Player.key.put("k", false);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_SPACE) {
+					Player.key.put("space", false);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_LSHIFT) {
+					Player.key.put("lshift", false);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+					Player.key.put("esc", true);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_1) {
+					Player.key.put("1", false);
+				}
+				if (Keyboard.getEventKey() == Keyboard.KEY_2) {
+					Player.key.put("2", false);
+				}
+			}
+		}
+	}
+	
+	public void TwoDeeRender() {
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+		GL11.glColor3f(1f, 0, 0);
+		GL11.glBegin(GL11.GL_QUADS);
+			GL11.glVertex2f(Display.getWidth()/2 - 10, Display.getHeight()/2 - 1);
+			GL11.glVertex2f(Display.getWidth()/2 + 10, Display.getHeight()/2 - 1);
+			GL11.glVertex2f(Display.getWidth()/2 + 10, Display.getHeight()/2 + 1);
+			GL11.glVertex2f(Display.getWidth()/2 - 10, Display.getHeight()/2 + 1);
+			
+			GL11.glVertex2f(Display.getWidth()/2 - 1, Display.getHeight()/2 - 10);
+			GL11.glVertex2f(Display.getWidth()/2 + 1, Display.getHeight()/2 - 10);
+			GL11.glVertex2f(Display.getWidth()/2 + 1, Display.getHeight()/2 + 10);
+			GL11.glVertex2f(Display.getWidth()/2 - 1, Display.getHeight()/2 + 10);
+		GL11.glEnd();
+		
+		GL11.glColor3f(1, 1, 1);
+		
+		TexLoad.tex[9].bind();
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+		GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0, 0);
+			GL11.glVertex2f(80, 20);
+			GL11.glTexCoord2f(TexLoad.tex[9].getWidth(), 0);
+			GL11.glVertex2f(300, 20);
+			GL11.glTexCoord2f(TexLoad.tex[9].getWidth(), TexLoad.tex[9].getHeight());
+			GL11.glVertex2f(300, 70);
+			GL11.glTexCoord2f(0, TexLoad.tex[9].getHeight());
+			GL11.glVertex2f(80, 70);
+		GL11.glEnd();
+		
+		TexLoad.tex[1].bind();
+
+		float b = p.health / p.maxHealth;
+		float c = b * 156 + 136;
+		GL11.glColor3f(1-(b), (b), 0);
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+		GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0, 0);
+			GL11.glVertex2f(137, 28);
+			GL11.glTexCoord2f(TexLoad.tex[1].getWidth(), 0);
+			GL11.glVertex2f(c, 28);
+			GL11.glTexCoord2f(TexLoad.tex[1].getWidth(), TexLoad.tex[1].getHeight());
+			GL11.glVertex2f(c, 62);
+			GL11.glTexCoord2f(0, TexLoad.tex[1].getHeight());
+			GL11.glVertex2f(137, 62);
+		GL11.glEnd();
+		
+		GL11.glColor3f(1f, 1f, 1f);
+		TexLoad.tex[5].bind();
+		GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0, 0);
+			GL11.glVertex2f(10, 10);
+			GL11.glTexCoord2f(1, 0);
+			GL11.glVertex2f(80, 10);
+			GL11.glTexCoord2f(1, 1);
+			GL11.glVertex2f(80, 80);
+			GL11.glTexCoord2f(0, 1);
+			GL11.glVertex2f(10, 80);
+		GL11.glEnd();
+	}
+
+	public void ThreeDeeRender() {
+        GL11.glCullFace(GL11.GL_BACK);
+        Cube3D cu = new Cube3D(0,0,0,100,100,100, new Point(0,1,0), TexLoad.tex[11]);
+        cu.normal = false;
+        cu.draw();
+        GL11.glCullFace(GL11.GL_FRONT);
+        //for (Tile t : Data.waypoints) {
+        //	t.draw();
+        //}
+        for (Particle p : particles) {
+			p.Render();
+		}
+		for (Entity w : entities) {
+			if (Util.distanceFrom(w.getPos(), p.getPos()) < updateDist) 
+				w.render();
+		}
+		for (Cube3D c : Data.cubes) {
+			if (Util.distanceFrom(c.getCoords(), p.getPos()) < updateDist)
+				c.draw();
+		}
+
+	}
+}

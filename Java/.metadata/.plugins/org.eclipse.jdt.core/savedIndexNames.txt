@@ -1,0 +1,24 @@
+INDEX VERSION 1.126+/home/chrisriis/Documents/Programming/Showcase/Java/.metadata/.plugins/org.eclipse.jdt.core
+3872166470.index
+1159974554.index
+4064159955.index
+1743919389.index
+567834502.index
+4071609663.index
+3046822418.index
+3913637947.index
+1539496708.index
+1240898526.index
+327138292.index
+2777786524.index
+4173864088.index
+2018871884.index
+3339358075.index
+2350209915.index
+2337897295.index
+3148628674.index
+4124340852.index
+154181899.index
+1787368836.index
+3139703838.index
+370669755.index
