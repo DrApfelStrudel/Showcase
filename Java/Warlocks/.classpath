@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="slick/ibxm.jar"/>
+	<classpathentry kind="lib" path="slick/lwjgl_util_applet.jar"/>
+	<classpathentry kind="lib" path="slick/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="slick/lwjgl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Warlocks/lwjgl-2.9.3/native/linux"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="slick/slick-util-src.zip"/>
+	<classpathentry kind="lib" path="slick/slick-util.jar"/>
+	<classpathentry kind="lib" path="SoundSystem/SoundSystem.jar"/>
+	<classpathentry kind="lib" path="LibraryLWJGLOpenAL/LibraryLWJGLOpenAL.jar"/>
+	<classpathentry kind="lib" path="CodecJOgg/CodecJOgg.jar"/>
+	<classpathentry kind="lib" path="CodecJOrbis/CodecJOrbis.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
